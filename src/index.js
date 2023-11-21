@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
-app.use("/user", userRouter);
+app.use("/users", userRouter);
 app.use(GlobalError.handle);
 
 app.listen(PORT, () => {

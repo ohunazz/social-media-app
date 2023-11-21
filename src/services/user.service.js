@@ -5,6 +5,7 @@ import { date } from "../utils/date.js";
 import { v4 as uuid } from "uuid";
 import jwt from "jsonwebtoken";
 import { mailer } from "../utils/mailer.js";
+import { CustomError } from "../utils/custom-error.js";
 
 class UserService {
     signUp = async (userInput) => {
@@ -77,6 +78,36 @@ class UserService {
         );
 
         return token;
+    };
+
+    activate = async (token) => {
+        const hashedActivationToken = crypto.hash(token);
+        const user = await prisma.user.findFirst({
+            where: {
+                activationToken: hashedActivationToken
+            },
+            select: {
+                id: true,
+                activationToken: true
+            }
+        });
+
+        if (!user) {
+            throw new CustomError(
+                "User does not exist with with provided Activation Token",
+                404
+            );
+        }
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                status: "ACTIVE",
+                activationToken: null
+            }
+        });
     };
 }
 
