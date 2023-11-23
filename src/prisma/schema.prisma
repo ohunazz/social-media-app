@@ -12,17 +12,67 @@ enum AccountStatus {
     INACTIVE
 }
 
+enum PostVisibilty {
+    PUBLIC
+    PRIVATE
+    FRIENDS
+}
+
+enum FriendshipStatus {
+    PENDING
+    ACCEPTED
+}
+
+type WorkExperience {
+    startYear Int
+    endYear   Int
+    company   String
+    position  String
+}
+
+type CurrentLocation {
+    country String
+    city    String
+}
+
 model User {
-    id                               String        @id @default(auto()) @map("_id") @db.ObjectId
-    email                            String        @unique
+    id                               String           @id @default(auto()) @map("_id") @db.ObjectId
+    email                            String           @unique
     firstName                        String
     lastName                         String
     password                         String
     dateOfBirth                      DateTime
-    status                           AccountStatus @default(INACTIVE)
+    bio                              String?
+    workExperience                   WorkExperience[]
+    location                         CurrentLocation?
+    status                           AccountStatus    @default(INACTIVE)
     activationToken                  String?
     passwordResetToken               String?
     passwordResetTokenExpirationDate DateTime?
-    createdAt                        DateTime      @default(now())
-    updatedAt                        DateTime      @updatedAt
+    createdAt                        DateTime         @default(now())
+    updatedAt                        DateTime         @updatedAt
+}
+
+model Post {
+    id         String        @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt  DateTime      @default(now())
+    updatedAt  DateTime      @updatedAt
+    likes      Int           @default(0)
+    userId     String?       @db.ObjectId
+    visibility PostVisibilty @default(PUBLIC)
+    comments   Comment[]
+}
+
+type Comment {
+    id        String
+    userId    String?  @db.ObjectId
+    postId    String?  @db.ObjectId
+    createdAt DateTime @default(now())
+}
+
+model Friendship {
+    id      String           @id @default(auto()) @map("_id") @db.ObjectId
+    userAID String
+    userBID String
+    status  FriendshipStatus @default(PENDING)
 }
